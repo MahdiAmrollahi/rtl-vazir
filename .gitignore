@@ -1,0 +1,27 @@
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Windows
+$RECYCLE.BIN/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node / build (not used today, but future-proof)
+node_modules/
+dist/
+build/
+*.log
+.npm
+.yarn
+
+# Local secrets
+.env
+.env.*
+!.env.example

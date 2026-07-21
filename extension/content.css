@@ -1,0 +1,193 @@
+/* ============================================================
+   RTL Vazir — content stylesheet
+   Loaded on supported AI chat sites via content_scripts.
+
+   Two independent toggles:
+     • Vazir font    → adds class rv-font-off when off
+     • Auto direction → adds class rv-rtl-off when off
+   Each toggle only affects its own feature, never the other.
+   ============================================================ */
+
+/* ----- 1. Vazir web font (mixed Latin + Persian, 5 weights) ----- */
+@font-face {
+  font-family: "VazirExt";
+  src: url("fonts/Vazir-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "VazirExt";
+  src: url("fonts/Vazir.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "VazirExt";
+  src: url("fonts/Vazir-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "VazirExt";
+  src: url("fonts/Vazir-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "VazirExt";
+  src: url("fonts/Vazir-Thin.woff2") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ----- 2. Apply Vazir ONLY to RTL-resolved text ----------------- */
+/* The content script tags every element that has dir="auto" and
+   whose computed direction resolves to RTL with the .rv-rtl
+   class. We apply Vazir to those elements (and their descendants)
+   ONLY. Pure-LTR paragraphs keep the site's own font, so English
+   text is never rendered in a Persian font. Icon-font elements
+   and code/math are excluded so they keep their own glyphs. */
+html:not(.rv-font-off) .rv-rtl,
+html:not(.rv-font-off) .rv-rtl *:not(pre):not(code):not(kbd):not(samp):not(tt):not(svg):not(math):not(mjx-container):not([class*="katex"]):not([class*="mathjax"]):not([class*="MathJax"]):not(i):not([role="img"]):not([class*="material"]):not([class*="Material"]):not([class*="icon"]):not([class*="Icon"]):not([class^="fa-"]):not([class*=" fa-"]):not([class*="fa-"]):not([class*="lucide"]):not([class*="Lucide"]):not([class*="ph-"]):not([class*="phosphor"]):not([class*="tabler"]):not([class*="bi-"]):not([class*="heroicon"]):not([class*="glyphicon"]):not([data-icon]):not([data-lucide]) {
+  font-family: "VazirExt", "Segoe UI", Tahoma, "Helvetica Neue", Arial, sans-serif !important;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* Placeholder text — only when the editable itself is RTL */
+html:not(.rv-font-off) .rv-rtl textarea::placeholder,
+html:not(.rv-font-off) .rv-rtl input::placeholder,
+html:not(.rv-font-off) .rv-rtl [contenteditable]::placeholder,
+html:not(.rv-font-off) [contenteditable="true"]::placeholder,
+html:not(.rv-font-off) [contenteditable=""]::placeholder {
+  font-family: "VazirExt", "Segoe UI", Tahoma, "Helvetica Neue", Arial, sans-serif !important;
+  opacity: 1;
+}
+
+/* ----- 3. Hard override for code, math and tables ---------------- */
+/* Code/monospace: must always win over the universal Vazir rule. */
+html:not(.rv-font-off) pre,
+html:not(.rv-font-off) pre *,
+html:not(.rv-font-off) code,
+html:not(.rv-font-off) code *,
+html:not(.rv-font-off) kbd,
+html:not(.rv-font-off) kbd *,
+html:not(.rv-font-off) samp,
+html:not(.rv-font-off) samp *,
+html:not(.rv-font-off) tt,
+html:not(.rv-font-off) tt * {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas,
+    "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace !important;
+}
+
+/* Math: keep KaTeX/MathJax's own font rules — they beat any
+   inheritance. We just lock direction. */
+html:not(.rv-rtl-off) .katex,
+html:not(.rv-rtl-off) .katex *,
+html:not(.rv-rtl-off) mjx-container,
+html:not(.rv-rtl-off) mjx-container *,
+html:not(.rv-rtl-off) math,
+html:not(.rv-rtl-off) math *,
+html:not(.rv-rtl-off) [class*="katex"],
+html:not(.rv-rtl-off) [class*="katex"] *,
+html:not(.rv-rtl-off) [class*="mathjax"],
+html:not(.rv-rtl-off) [class*="mathjax"] *,
+html:not(.rv-rtl-off) [class*="MathJax"],
+html:not(.rv-rtl-off) [class*="MathJax"] * {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: left;
+}
+
+/* Code direction lock */
+html:not(.rv-rtl-off) pre,
+html:not(.rv-rtl-off) code,
+html:not(.rv-rtl-off) kbd,
+html:not(.rv-rtl-off) samp {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: left;
+}
+
+/* Tables: keep original direction/formatting */
+html:not(.rv-rtl-off) table,
+html:not(.rv-rtl-off) thead,
+html:not(.rv-rtl-off) tbody,
+html:not(.rv-rtl-off) tr,
+html:not(.rv-rtl-off) td,
+html:not(.rv-rtl-off) th,
+html:not(.rv-rtl-off) caption {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* ----- 4. Elements processed by content.js (dir=auto) ----------- */
+html:not(.rv-rtl-off) [dir="auto"].rv-text,
+html:not(.rv-rtl-off) [dir="auto"] {
+  text-align: start;
+}
+
+/* ----- 5. Kill switches (toggle off) ---------------------------- */
+/* When font is off, revert Vazir on the .rv-rtl elements only. */
+html.rv-font-off .rv-rtl,
+html.rv-font-off .rv-rtl *:not(pre):not(code):not(kbd):not(samp):not(tt):not(svg):not(math):not(mjx-container):not([class*="katex"]):not([class*="mathjax"]):not([class*="MathJax"]):not(i):not([role="img"]):not([class*="material"]):not([class*="Material"]):not([class*="icon"]):not([class*="Icon"]):not([class^="fa-"]):not([class*=" fa-"]):not([class*="fa-"]):not([class*="lucide"]):not([class*="Lucide"]):not([class*="ph-"]):not([class*="phosphor"]):not([class*="tabler"]):not([class*="bi-"]):not([class*="heroicon"]):not([class*="glyphicon"]):not([data-icon]):not([data-lucide]) {
+  font-family: revert !important;
+  font-feature-settings: revert !important;
+}
+html.rv-font-off pre,
+html.rv-font-off pre *,
+html.rv-font-off code,
+html.rv-font-off code *,
+html.rv-font-off kbd,
+html.rv-font-off kbd *,
+html.rv-font-off samp,
+html.rv-font-off samp *,
+html.rv-font-off tt,
+html.rv-font-off tt * {
+  font-family: revert !important;
+}
+html.rv-font-off .rv-rtl textarea::placeholder,
+html.rv-font-off .rv-rtl input::placeholder,
+html.rv-font-off .rv-rtl [contenteditable]::placeholder,
+html.rv-font-off .rv-rtl [contenteditable="true"]::placeholder,
+html.rv-font-off .rv-rtl [contenteditable=""]::placeholder {
+  font-family: revert !important;
+  opacity: revert !important;
+}
+
+/* When RTL is off, undo ONLY the dir/text-align changes. */
+html.rv-rtl-off [dir="auto"].rv-text,
+html.rv-rtl-off [dir="auto"] {
+  text-align: revert !important;
+}
+html.rv-rtl-off pre,
+html.rv-rtl-off code,
+html.rv-rtl-off kbd,
+html.rv-rtl-off samp,
+html.rv-rtl-off .katex,
+html.rv-rtl-off .katex *,
+html.rv-rtl-off mjx-container,
+html.rv-rtl-off mjx-container *,
+html.rv-rtl-off math,
+html.rv-rtl-off math *,
+html.rv-rtl-off [class*="katex"],
+html.rv-rtl-off [class*="katex"] *,
+html.rv-rtl-off [class*="mathjax"],
+html.rv-rtl-off [class*="mathjax"] *,
+html.rv-rtl-off [class*="MathJax"],
+html.rv-rtl-off [class*="MathJax"] *,
+html.rv-rtl-off table,
+html.rv-rtl-off thead,
+html.rv-rtl-off tbody,
+html.rv-rtl-off tr,
+html.rv-rtl-off td,
+html.rv-rtl-off th,
+html.rv-rtl-off caption {
+  direction: revert !important;
+  unicode-bidi: revert !important;
+  text-align: revert !important;
+}
