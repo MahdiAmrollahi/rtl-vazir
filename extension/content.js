@@ -1,10 +1,17 @@
 /* ============================================================
    RTL Vazir — content script
    Detects Persian/Arabic/other RTL text in chat messages and
-   sets dir="auto" so the browser renders mixed LTR+RTL cleanly.
-   Code, math and tables are explicitly excluded. The prompt
-   composer (contenteditable / textarea / [role=textbox]) IS
-   processed so typed Persian renders RTL.
+   sets dir="rtl" on the block so the WHOLE block flows RTL.
+   The browser's Unicode Bidi algorithm then renders inline
+   English words, numbers and LTR runs (e.g. math) in their
+   natural LTR order, embedded in the correct position within
+   the RTL flow. So a sentence like "من به Google رفتم" reads
+   as RTL with "Google" appearing LTR inline.
+
+   Code, math and tables are explicitly excluded and forced
+   back to LTR via CSS. The prompt composer (contenteditable /
+   textarea / [role=textbox]) IS processed so typed Persian
+   renders RTL.
    ============================================================ */
 (() => {
   "use strict";
@@ -93,16 +100,16 @@
       return;
     }
 
-    if (el.getAttribute("dir") !== "auto") el.setAttribute("dir", "auto");
+    if (el.getAttribute("dir") !== "rtl") el.setAttribute("dir", "rtl");
     el.classList.add("rv-text");
     if (el.dataset) el.dataset.rvDone = "1";
 
-    // After the browser has had a chance to resolve dir="auto" to
-    // an actual direction, mark the element with .rv-rtl IF the
-    // resolved direction is RTL. This is what CSS uses to decide
-    // whether to apply Vazir (only to RTL text, never to LTR).
-    // We re-resolve on every call because the element's text can
-    // change (token streaming) and the direction may flip.
+    // After the browser has resolved the direction, mark the
+    // element with .rv-rtl if it ended up RTL. CSS uses this
+    // to decide whether to apply Vazir (only to RTL text, never
+    // to LTR). We re-resolve on every call because the element's
+    // text can change (token streaming) and the direction may
+    // flip.
     const rtlProbe = () => {
       if (!el.isConnected) return;
       const dir = el.ownerDocument.defaultView

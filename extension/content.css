@@ -46,7 +46,7 @@
 }
 
 /* ----- 2. Apply Vazir ONLY to RTL-resolved text ----------------- */
-/* The content script tags every element that has dir="auto" and
+/* The content script tags every element that has dir="rtl" and
    whose computed direction resolves to RTL with the .rv-rtl
    class. We apply Vazir to those elements (and their descendants)
    ONLY. Pure-LTR paragraphs keep the site's own font, so English
@@ -125,10 +125,11 @@ html:not(.rv-rtl-off) caption {
   unicode-bidi: isolate;
 }
 
-/* ----- 4. Elements processed by content.js (dir=auto) ----------- */
-html:not(.rv-rtl-off) [dir="auto"].rv-text,
-html:not(.rv-rtl-off) [dir="auto"] {
+/* ----- 4. Elements processed by content.js (dir=rtl) ----------- */
+html:not(.rv-rtl-off) [dir="rtl"].rv-text,
+html:not(.rv-rtl-off) [dir="rtl"] {
   text-align: start;
+  unicode-bidi: isolate;
 }
 
 /* ----- 5. Kill switches (toggle off) ---------------------------- */
@@ -160,9 +161,10 @@ html.rv-font-off .rv-rtl [contenteditable=""]::placeholder {
 }
 
 /* When RTL is off, undo ONLY the dir/text-align changes. */
-html.rv-rtl-off [dir="auto"].rv-text,
-html.rv-rtl-off [dir="auto"] {
+html.rv-rtl-off [dir="rtl"].rv-text,
+html.rv-rtl-off [dir="rtl"] {
   text-align: revert !important;
+  unicode-bidi: revert !important;
 }
 html.rv-rtl-off pre,
 html.rv-rtl-off code,
